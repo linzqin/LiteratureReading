@@ -201,7 +201,7 @@
 	- 两个相似函数（embedding）之间的距离应该小，而两个不同函数（embedding）之间的距离应该大
 	- 将两个相同的 CNN 嵌入到 Siamese 架构中，并训练 CNN 的参数。     
 
-![](./img/Siamese network.png)    
+![](./img/Siamesenetwork_online.png)    
 
 孪生神经网络主要用于衡量两个输入的相似程度，孪生神经网络有两个输入（Input1 and Input2）,将两个输入feed进入两个神经网络（Network1 and Network2），这两个神经网络**分别将输入映射到新的空间，形成输入在新的空间中的表示**。通过Loss的计算，评价两个输入的相似度。
 

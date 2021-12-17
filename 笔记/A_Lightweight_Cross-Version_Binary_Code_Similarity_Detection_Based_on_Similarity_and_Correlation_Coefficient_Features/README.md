@@ -1,6 +1,6 @@
 # A Lightweight Cross-Version Binary Code Similarity Detection Based on Similarity and Correlation Coefficient Features
 > 一种基于相似系数和相关系数特征的轻量级跨版本二进制代码相似度检测
-> 2020
+
 ## 摘要
 
 ### 研究背景 
