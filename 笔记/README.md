@@ -13,7 +13,7 @@
 - [ ] [7]Goodfellow I, Bengio Y, Courville A, et al. Deep learning[M]. Cambridge: MIT press, 2016.
 - [ ] [8][美]拉斐尔,冈萨雷斯,等.数字图像处理(第四版)[M].北京:电子工业出版社,2020.
 - [ ] [9]何晗.自然语言处理入门[M].北京:人民邮电出版社,2019.
-- [ ] [10]Ye Y, Li T, Adjeroh D, et al. A survey on malware detection using data mining techniques[J]. ACM Computing Surveys (CSUR), 2017, 50(3): 1-40.
+- [x] [10]Ye Y, Li T, Adjeroh D, et al. A survey on malware detection using data mining techniques[J]. ACM Computing Surveys (CSUR), 2017, 50(3): 1-40.
 - [ ] [11]Ghaffarian S M, Shahriari H R. Software vulnerability analysis and discovery using machine-learning and data-mining techniques: A survey[J]. ACM Computing Surveys (CSUR), 2017, 50(4): 1-36.
 - [ ] [12]Khraisat A, Gondal I, Vamplew P, et al. Survey of intrusion detection systems: techniques, datasets and challenges[J]. Cybersecurity, 2019, 2(1): 1-22.
 - [ ] [13]Goyal V, Pandey O, Sahai A, et al. Attribute-based encryption for fine-grained access control of encrypted data[C]//Proceedings of the 13th ACM conference on Computer and communications security. 2006: 89-98.
