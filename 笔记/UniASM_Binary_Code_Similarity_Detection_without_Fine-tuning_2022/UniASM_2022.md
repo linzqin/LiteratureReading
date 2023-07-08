@@ -6,9 +6,13 @@
 
 ## Summary
 
-写完笔记之后最后填，概述文章的内容，以后查阅笔记的时候先看这一段。
-
-> 注：写文章summary切记需要通过自己的思考，用自己的语言描述。忌讳直接Ctrl + C原文。
+这篇文章提出了一个**UniASM**，一个基于**transformer（UniLM）**的BSCD模型，它可以**跨编译器、跨编译选项和跨混淆**进行检测。UniASM提出了两个训练任务：**ALG（Assembly Language Generation ）**和**SFP（Similar Function Prediction）**，并在后续的消融实验中证明ALG的实验效果要优于Bert使用的MLM模型。           
+同时，这篇文章的实验非常充分，做了许多的消融实验，
+1. 比较了不同的backbone模型，UniLM和Bert，证明了UniLM的效果要优于Bert
+2. 比较了不同的训练任务，ALG和SFP，证明了ALG+SFP的效果要优于单独使用ALG或者SFP以及MLM
+3. 比较了不同的函数序列化方法，证明了线性顺序的效果要优于随机游走和最长游走
+4. 比较了不同的tokennization算法，证明了整个指令视为token的效果要优于其他方法
+...
 
 **开源：https://github.com/clm07/UniASM**
 ## Research Objective(s)
@@ -226,54 +230,103 @@
 
 ### 评估结果 
 
+#### 跨编译器、跨编译选项、跨混淆的相似函数检测
+
+![](./img/三跨结果.png)          
+
+- P1~P5对应着五个不同的软件版本
+
+#### 消融研究
+
+##### backbone models
+
+![](./img/消融实验_backbone.png)        
+
+- UniLM和Bert进行比较
+    - rand:随即参数
+    - unsuper：无监督学习
+    - super：监督学习
+
+##### training tasks
+
+![](./img/消融实验_training_tasks.png)
+
+- 具有 ALG+SPF 任务的模型最优
+
+- ALG在跨编译选项和跨编译器中都表现出了高性能。然而，跨混淆中的性能相对较差
+- SFP 任务在所有 BCSD 任务中表现不佳。然而，当与 MLM 或 ALG 结合时，它可以显着提高模型的性能
+
+##### 函数序列化
+
+![](./img/消融实验_函数序列化.png)        
+
+- 随机游走和最长游走都只能提取函数的一条执行路径，所以会丢失函数的一部分语义信息
+- 默认情况下，函数内联是开启了的，开启内联函数的数据及会降低函数对的相似性 
+
+##### tokennization算法
+
+![](./img/消融实验_tokennization.png)     
+
+- 选择了五种方法：
+    1. Full-Instruction
+        - 整个指令视为token，可以有更多指令进行表示学习，但是容易OOV
+    2. Half-Instruction
+        - 操作码和操作数分别视为token。可以减少词汇量，但是可能会导致输入长度超过模型的限制
+    3. Piece-Instruction
+        - 每个单词视为token，幻剑ooc问题，但是破坏了指令的完整性
+    4. Byte-Pair Encoding（为自然语言设计的）：较所有指令连城一个句子，然后用空格分割
+    5. Word-Piece
+
+##### 最大序列长度 
+
+![](./img/消融实验_最大序列长度.png)
+
+- 128长度表现最差,256,512,1024在前两个任务中表现相差不多
+
+![](./img/函数长度分布.png)      
+
+- 只有12%左右的函数超过256长度，所以256长度是一个比较合适的选择
+
+#### Embedding Space Analysis 
+
+![](./img/enbeddingapace.png)        
+
+> 良好的嵌入空间应该使点均匀分布
+
+- UniASM 的嵌入比 BERT 分布更均匀
+- 联合任务ALG+SFP使得大部分嵌入均匀分布
+
+#### 漏洞搜索
+
+![](./img/漏洞搜索结果.png)        
+
 ## Conclusion
 
-作者给出了哪些结论？哪些是 `strong conclusions`, 哪些又是 `weak conclusions`（即作者并没有通过实验提供 `evidence`，只在 `discussion` 中提到；或实验的数据并没有给出充分的 `evidence`）?
+- 限制
+    1. 跨架构：需要重新训练
+    2. 控制流语义缺失
+    3. OOV问题（如果是跨架构，整个字典会更大，更容易oov）
+
 
 ## Notes(optional) 
 
-不在以上列表中，但需要特别记录的笔记。例如英文书写模板，精美绘图所使用到的工具软件等。
+- t-SNE [76] 来可视化高维向量
+> L. van der Maaten and G. E. Hinton, “Visualizing data using t-sne,” Journal of Machine Learning Research, vol. 9, pp. 2579–2605, 2008.
 
 ## References(optional) 
 
 - 通过BSCD进行补丁分析
-> [9]
+> [9] A. Sæ bjø rnsen, J. Willcock, T. Panas, D. J. Quinlan, and Z. Su, “Detecting code clones in binary executables,” in Proceedings of the Eighteenth International Symposium on Software Testing and Analysis, ISSTA 2009, Chicago, IL, USA, July 19-23, 2009. ACM, 2009, pp. 117–128.
 
 - Jtrans
-> [19]
+> [19] H. Wang, W. Qu, G. Katz, W. Zhu, Z. Gao, H. Qiu, J. Zhuge, and C. Zhang, “jTrans: jump-aware transformer for binary code similarity detection,” in ISSTA ’22: 31st ACM SIGSOFT International Symposium on Software Testing and Analysis, Virtual Event, South Korea, July 18 - 22, 2022. ACM, 2022, pp. 1–13.
 
 - 库函数的识别：IDA FLIRT [29] 和 UNSTRIP [30]
 
+> [29] Hex-rays, “Flirt,” https://hex-rays.com/products/ida/tech/flirt/, 2022
+> [30] E. R. Jacobson, N. E. Rosenblum, and B. P. Miller, “Labeling library functions in stripped binaries,” in Proceedings of the 10th ACM SIGPLAN-SIGSOFT workshop on Program analysis for software tools, PASTE’11, Szeged, Hungary, September 5-9, 2011. ACM, 2011, pp. 1–8.
 
-## Origin
-
-给出指向你个人论文仓库的本篇论文阅读笔记原文链接。
 
 ## Tags
-
-逗号分隔本文的所有标签，标签使用规范参见以下 `GitLab Issue 标签使用规范` 。
-
-2021, SCI, SCI-1, CyberRange, Playbook, Ansible, Scenario, CTF
-
------- 以下内容仅为解释说明，请在提交时删除 ------
-
-### GitLab Issue 标签使用规范
-
-* 在不影响语义理解的前提下，标签关键词要尽可能短
-* 优先选择已有标签，确实没有的情况下再 `新建标签`
-
-#### 建议的标签列表
-
-* 文献发表年份。例如 2021
-* 检索收录情况：EI, SCI 
-* 中科院 JCR 分区（针对 SCI 收录文献才需要标记）：SCI-1, SCI-2, SCI-3, SCI-4
-* 关联实验室内项目简称（最近更新 2021-05-22）：Fuzz, CyberRange, osint4sn, SoftFP, MTD
-    * 物联网漏洞挖掘：Fuzz
-    * 靶场：CyberRange
-    * 开源社区情报分析：osint4sn
-    * SoftFP：软件指纹
-    * 欺骗式防御：MTD
-* 研究对象（不超过3个）。例如：IoT, 源代码 等
-* 研究方法（不超过3个）。例如：综述, 动态分析, 静态分析, CNN 等
-* 数据集（不超过3个）。例如： NB-15，MalwareZoo, VulDeePecker, LAVA-M 等
+2022, BSCD, Transformer, ALG, SFP
 
